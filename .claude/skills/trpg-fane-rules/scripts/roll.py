@@ -20,6 +20,10 @@
   @技能值        CoC 7e 成功等級，例：1d100@65、1d100b1@40
   >=目標值       對 DC／AC 判定，例：1d20+5>=15
   #pbta          PbtA 2D6 結果帶，例：2d6+1#pbta
+  #is            Ironsworn 行動擲骰：1d6＋屬性＋加值（上限 10）對兩顆 d10 挑戰骰，
+                 例：1d6+2#is、1d6+2+1#ironsworn
+  #prog          Ironsworn 進度擲骰：進度分數（0–10，不擲行動骰）對兩顆 d10，
+                 例：7#prog、7#progress
 
 條件預擲：標籤前加 ?，例："?小宇-傷害:1d8+2"
   （條件未觸發時該數值作廢，不得挪用至其他判定）
@@ -80,15 +84,24 @@ def parse_spec(spec):
     expr = expr.strip().lower().replace(" ", "").replace("＋", "+").replace("－", "-")
 
     check = None
-    m = re.search(r"(@(\d+)|>=(\d+)|#pbta)$", expr)
+    m = re.search(r"(@(\d+)|>=(\d+)|#pbta|#ironsworn|#is|#progress|#prog)$", expr)
     if m:
         if m.group(2) is not None:
             check = ("coc", int(m.group(2)))
         elif m.group(3) is not None:
             check = ("dc", int(m.group(3)))
-        else:
+        elif m.group(1) == "#pbta":
             check = ("pbta", None)
+        elif m.group(1) in ("#ironsworn", "#is"):
+            check = ("ironsworn", None)
+        else:
+            check = ("progress", None)
         expr = expr[: m.start()]
+
+    if check and check[0] == "progress":
+        if not re.fullmatch(r"\d+", expr) or int(expr) > 10:
+            raise DiceError(f"「{label}」進度擲骰請寫進度分數 0–10，例：7#prog")
+        return label, conditional, [(1, {"type": "const", "value": int(expr)})], 1, check, expr
 
     multiplier = 1
     m = re.fullmatch(r"\((.+)\)[*x×](\d+)|(.+?)[*x×](\d+)", expr)
@@ -127,6 +140,11 @@ def parse_spec(spec):
 
     if not any(t["type"] == "dice" for _, t in terms):
         raise DiceError(f"「{label}」沒有任何骰子：{expr}")
+    if check and check[0] == "ironsworn":
+        dice_terms = [(sg, t) for sg, t in terms if t["type"] == "dice"]
+        if (multiplier != 1 or len(dice_terms) != 1 or dice_terms[0][0] < 0
+                or dice_terms[0][1]["n"] != 1 or dice_terms[0][1]["sides"] != 6 or dice_terms[0][1]["mode"]):
+            raise DiceError(f"「{label}」Ironsworn 行動擲骰請寫成 1d6＋屬性＋加值，例：1d6+2#is")
     if check and check[0] == "coc":
         dice_terms = [t for _, t in terms if t["type"] == "dice"]
         if len(terms) != 1 or multiplier != 1 or dice_terms[0]["sides"] != 100 or dice_terms[0]["n"] != 1:
@@ -216,8 +234,22 @@ def pretty(expr):
     return re.sub(r"(\d*)d(\d+|%)", lambda m: f"{m.group(1)}D{m.group(2)}", expr)
 
 
-def judge(check, total, nat):
+def ironsworn_outcome(score, challenge):
+    beaten = sum(1 for c in challenge if score > c)
+    result = ("失手（Miss）", "弱成功（Weak Hit）", "強成功（Strong Hit）")[beaten]
+    if challenge[0] == challenge[1]:
+        result += "，挑戰骰相同（Match）"
+    return result
+
+
+def judge(check, total, nat, challenge=None):
     kind, target = check
+    if kind == "ironsworn":
+        score = min(total, 10)
+        capped = f"{total}→上限 10" if total > 10 else str(total)
+        return f"Ironsworn｜行動分數 {capped} 對挑戰骰 {challenge}｜{ironsworn_outcome(score, challenge)}"
+    if kind == "progress":
+        return f"Ironsworn 進度擲骰｜進度 {total} 對挑戰骰 {challenge}｜{ironsworn_outcome(total, challenge)}"
     if kind == "coc":
         skill = target
         if total == 1:
@@ -283,10 +315,16 @@ def main(argv):
             body = f"{body if body.startswith('[') or '=' in body else f'[{body}]'} ×{multiplier} = {total * multiplier}"
             total *= multiplier
 
+        challenge = None
+        if check and check[0] in ("ironsworn", "progress"):
+            challenge = [RNG.randint(1, 10), RNG.randint(1, 10)]
+        if check and check[0] == "progress":
+            body = f"進度 {total}"
+
         name = ("(條件預擲) " if conditional else "") + label
         line = f"[骰] {pad(name, width)} {pretty(expr)} → {body}"
         if check:
-            line += f"（{judge(check, total, natural_d20(parts))}）"
+            line += f"（{judge(check, total, natural_d20(parts), challenge)}）"
         print(line)
     return 0
 
