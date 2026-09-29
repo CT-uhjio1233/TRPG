@@ -31,7 +31,18 @@
 ├── trpg-xiaoyu/               🎯 小宇（戰術家）
 ├── trpg-akai/                 🎉 阿凱（社交家）
 ├── trpg-xiaoya/               🎭 小雅（演員）
-└── trpg-zihao/                🛡️ 子豪（輔助者）
+├── trpg-zihao/                🛡️ 子豪（輔助者）
+│
+├── trpg-system-coc7e/         規則模組：克蘇魯的呼喚第七版
+├── trpg-system-dnd5e/         規則模組：龍與地下城第五版（含模組摘要）
+├── trpg-system-apocalypse-world/  規則模組：末日世界（PbtA）
+├── trpg-system-ironsworn/     規則模組：Ironsworn／Delve／Starforged／Sundered Isles
+│   └── scripts/oracle.py      神諭批次擲骰
+├── trpg-system-wh40k/         規則模組：戰錘 40K＋至高帝皇任務與召喚系統
+│   ├── scripts/summon.py      抽卡、時長、任務擲骰
+│   └── references/cards.csv   十陣營召喚卡白名單
+└── trpg-system-zombicide/     規則模組：無盡殺戮（獸之死、第二版）
+    └── scripts/zc.py          命中計數、全力骰、喪屍卡、搜索
 ```
 
 ## 使用方式
@@ -92,3 +103,19 @@
   - 隊友人際關係矩陣
   - 說書 skill 的「讓玩家身在其中的寫法」與 NPC 聲線區辨表
   - 文字對話中「靜默超時」的判讀方式
+
+## 規則系統模組（使用者的規則書庫）
+
+依使用者 Google 雲端「跑團手冊」資料夾中的規則書整理，一個規則系統一個 skill，由 `trpg-fane-rules` §1 調度。書中文字受版權保護，這裡只保留以正體中文改寫的規則摘要與 GM 用的結構化重點，不轉載原文。每個模組的 SKILL.md 末尾都有「來源與涵蓋範圍」表，列出哪些檔案讀得到、哪些內容被截斷。
+
+| 模組 | 使用者的檔案 | 讀取缺口 |
+|------|-------------|---------|
+| `trpg-system-coc7e` | 守秘人規則書、調查員手冊（簡中譯本） | 守秘人規則書第 6 章以後（戰鬥、追逐、理智、魔法）未擷取到，依 7e 核心規則整理 |
+| `trpg-system-dnd5e` | 玩家手冊、怪物圖鑑、元素邪妄、暗無天日、逃離深淵、施特拉德的詛咒、國度歷史 | 玩家手冊第 4 章以後、怪物圖鑑第 86 頁以後未擷取；施特拉德的詛咒是圖片檔，摘要依記憶並已標註 |
+| `trpg-system-apocalypse-world` | 核心書（第一版）、2E 擴展資料冊 | 核心書 MC 章節未擷取，議程、原則與 MC 招式依記憶並已標註 |
+| `trpg-system-ironsworn` | Ironsworn 規則書與遊戲包、Delve、Starforged、Sundered Isles | 神諭第 14–19 表被截斷，未收錄 |
+| `trpg-system-wh40k` | 至高帝皇任務與召喚系統 v1.1／v2.0、角色種子、十本聖典與索引、基礎規則、點數手冊 | 渾沌惡魔檔只讀到恐虐、奸奇、納垢；禁軍檔是 9 版且只有部隊頁 |
+| `trpg-system-zombicide` | 無盡殺戮：獸之死規則書、第二版濃縮規則 | 喪屍卡內容不在規則書中，腳本使用已標註的替代牌堆 |
+
+**模組中補充、原書沒有的內容一律標示**（例如：召喚系統的陣營缺卡重擲與 EP 刻度、跨世界戰鬥裁定、Zombicide 的替代牌堆與自創倖存者流程）。Ironsworn 模組依原作授權以 CC BY-NC-SA 4.0 釋出。
+

@@ -1,6 +1,6 @@
 ---
 name: trpg-fane-rules
-description: 范恩（GM）的規則仲裁職能——專門審定規則。負責 TRPG 規則系統適配（CoC 7e、D&D 5e、PbtA 及其他系統）、亂數生成強制協議（必須以程式碼批次擲骰，附 scripts/roll.py，支援 CoC 獎勵／懲罰骰與成功等級、D&D 優劣勢與 DC、PbtA 結果帶）、擲骰結果展示格式、工具失效退路、規則嚴格性與灰色地帶裁量，以及群體戰鬥（雜兵／屍海）模組。在 trpg-simulator 跑團中任何需要檢定、擲骰、戰鬥結算、規則爭議或角色屬性擲骰時使用。
+description: 范恩（GM）的規則仲裁職能——專門審定規則。負責 TRPG 規則系統適配（CoC 7e、D&D 5e、PbtA 及其他系統，並調度使用者規則書庫的 trpg-system-* 模組）、亂數生成強制協議（必須以程式碼批次擲骰，附 scripts/roll.py，支援 CoC 獎勵／懲罰骰與成功等級、D&D 優劣勢與 DC、PbtA 結果帶）、擲骰結果展示格式、工具失效退路、規則嚴格性與灰色地帶裁量，以及群體戰鬥（雜兵／屍海）模組。在 trpg-simulator 跑團中任何需要檢定、擲骰、戰鬥結算、規則爭議或角色屬性擲骰時使用。
 ---
 
 # 范恩｜規則仲裁
@@ -11,6 +11,19 @@ description: 范恩（GM）的規則仲裁職能——專門審定規則。負�
 ## 1. 規則系統適配
 
 本系統不綁定特定 TRPG。開局時范恩必須與使用者確認規則系統，並嚴格遵循其核心機制。
+
+**使用者的規則書庫：** 下列系統有整理好的規則模組，確認規則系統後載入對應的 skill，細節一律以它為準；本節的摘要只是速查。
+
+| 系統 | 模組 | 額外腳本（隨機結果一律由腳本產生） |
+|------|------|----------------------------------|
+| 克蘇魯的呼喚第七版 | `trpg-system-coc7e` | 無，用本 skill 的 `roll.py` |
+| 龍與地下城第五版 | `trpg-system-dnd5e` | 無，用 `roll.py` |
+| 末日世界（PbtA） | `trpg-system-apocalypse-world` | 無，用 `roll.py` 的 `#pbta` |
+| Ironsworn 系列 | `trpg-system-ironsworn` | `scripts/oracle.py`（神諭）；行動與進度擲骰用 `roll.py` 的 `#is`、`#prog` |
+| 戰錘 40K／至高帝皇召喚系統 | `trpg-system-wh40k` | `scripts/summon.py`（抽卡、時長、任務） |
+| 無盡殺戮 Zombicide | `trpg-system-zombicide` | `scripts/zc.py`（命中計數、全力骰、喪屍卡、搜索） |
+
+同一回合需要多支腳本時，每支各呼叫一次，結果合併在同一個判定區展示。
 
 **《克蘇魯的呼喚》第七版（CoC 7e）**
 - D100 檢定；常規成功／困難成功（技能值 ½）／極難成功（技能值 ⅕）
